@@ -1,0 +1,16 @@
+2025-04-26 17:19:11,500 - INFO - [main][run.py] ResearchWorkflow instantiated.
+2025-04-26 17:19:22,607 - INFO - [main][run.py] User query input: What was Apple's total revenue and net income reported in the 2023 10-K?
+2025-04-26 17:19:22,608 - INFO - [main][run.py] Workflow run handler created.
+2025-04-26 17:19:22,611 - INFO - [kickoff_reflection][reflection_steps.py] Entered kickoff_reflection step.
+2025-04-26 17:19:22,611 - INFO - [kickoff_reflection][reflection_steps.py] Received user query: What was Apple's total revenue and net income reported in the 2023 10-K?
+2025-04-26 17:19:22,611 - INFO - [kickoff_reflection][reflection_steps.py] Saved user query into context.
+2025-04-26 17:19:22,614 - INFO - [reflect_query][reflection_steps.py] Entered reflect_query step.
+2025-04-26 17:19:22,618 - INFO - [reflect_query][reflection_steps.py] Query to reflect: What was Apple's total revenue and net income reported in the 2023 10-K?
+2025-04-26 17:19:22,618 - INFO - [reflect_query][reflection_steps.py] Calling LLM with reflection prompt.
+2025-04-26 17:19:24,407 - INFO - [reflect_query][reflection_steps.py] Got improved query: "Apple Inc. total revenue and net income figures for the fiscal year 2023 as reported in the 10-K filing."
+2025-04-26 17:19:24,407 - INFO - [reflect_query][reflection_steps.py] Saved improved query into context.
+2025-04-26 17:19:24,409 - INFO - [finalize_reflection][reflection_steps.py] Entered finalize_reflection step.
+2025-04-26 17:19:24,409 - INFO - [finalize_reflection][reflection_steps.py] Reflected query to finalize: "Apple Inc. total revenue and net income figures for the fiscal year 2023 as reported in the 10-K filing."
+2025-04-26 17:19:24,409 - INFO - [main][run.py] Streamed Event: 
+2025-04-26 17:19:24,409 - INFO - [main][run.py] Final result received: 
+2025-04-26 17:19:25,347 - INFO - [main][run.py] Execution flow visualization saved to most_recent_execution.html.
