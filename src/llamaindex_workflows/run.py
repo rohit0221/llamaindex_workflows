@@ -5,7 +5,7 @@ from llama_index.utils.workflow import draw_most_recent_execution
 
 async def main():
     # Instantiate the workflow
-    workflow = ResearchWorkflow(timeout=60, verbose=True)
+    workflow = ResearchWorkflow(timeout=300, verbose=True)
 
     # Ask the user for the research question
     user_query = input("\nEnter your research question: ")
@@ -18,10 +18,12 @@ async def main():
     async for event in handler.stream_events():
         print(f"Event Streamed: {event}")
 
-    # Await the final result
-    final_result = await handler
+    # Await the final StopEvent (FinalResponseEvent)
+    final_event = await handler
+
     print("\n=== FINAL RESULT ===")
-    print(final_result)
+    # 👉 Unwrap and print the actual answer text
+    print(final_event.result)
 
     # Visualize the execution flow
     print("\nGenerating execution flow visualization (most_recent_execution.html)...")

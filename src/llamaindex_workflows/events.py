@@ -28,4 +28,4 @@ class JudgmentEvent(Event):
 
 # --- Final Response Event ---
 class FinalResponseEvent(StopEvent):
-    result: str
+    pass  # no manual field definition!

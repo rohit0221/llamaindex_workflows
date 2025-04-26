@@ -1,3 +1,5 @@
+# retrieval_steps.py
+
 from llamaindex_workflows.workflow import ResearchWorkflow
 from llama_index.core.workflow import step, Context
 from llamaindex_workflows.events import (
@@ -5,67 +7,61 @@ from llamaindex_workflows.events import (
     NaiveRAGEvent,
     TopKRAGEvent,
     RerankRAGEvent,
-    RAGResponseEvent
+    RAGResponseEvent,
 )
-from llamaindex_workflows.rag_setup import get_rag_query_engine
+from llamaindex_workflows.rag_setup import get_rag_retriever
 
 # --- Setup retriever once ---
-query_engine = get_rag_query_engine()
+retriever = get_rag_retriever()
 
-# --- Split Retrieval Event Launchers ---
+# --- Dispatchers ---
 
 @step(workflow=ResearchWorkflow)
 async def send_naive_rag(ctx: Context, ev: RetrievalEvent) -> NaiveRAGEvent:
-    """
-    Launch Naive RAG.
-    """
+    """Launch Naive RAG."""
     return NaiveRAGEvent(query=ev.query)
 
 @step(workflow=ResearchWorkflow)
 async def send_topk_rag(ctx: Context, ev: RetrievalEvent) -> TopKRAGEvent:
-    """
-    Launch Top-K RAG.
-    """
+    """Launch Top-K RAG."""
     return TopKRAGEvent(query=ev.query)
 
 @step(workflow=ResearchWorkflow)
 async def send_rerank_rag(ctx: Context, ev: RetrievalEvent) -> RerankRAGEvent:
-    """
-    Launch Rerank RAG.
-    """
+    """Launch Rerank RAG."""
     return RerankRAGEvent(query=ev.query)
 
-# --- Retrieval Workers ---
+# --- Real Retrieval Workers ---
 
 @step(workflow=ResearchWorkflow)
 async def naive_rag(ctx: Context, ev: NaiveRAGEvent) -> RAGResponseEvent:
-    """
-    Naive RAG: simple retrieval.
-    """
-    response = await query_engine.aquery(ev.query)
+    """Naive RAG retrieval."""
+    nodes = await retriever.aretrieve(ev.query)
+    combined_content = "\n\n".join(node.get_content() for node in nodes)
+
     return RAGResponseEvent(
-        content=response.response,
-        strategy="naive"
+        content=combined_content,
+        strategy="naive",
     )
 
 @step(workflow=ResearchWorkflow)
 async def topk_rag(ctx: Context, ev: TopKRAGEvent) -> RAGResponseEvent:
-    """
-    Top-K RAG: broader retrieval (simulated).
-    """
-    response = await query_engine.aquery(ev.query)
+    """Top-K RAG retrieval."""
+    nodes = await retriever.aretrieve(ev.query)
+    combined_content = "\n\n".join(node.get_content() for node in nodes)
+
     return RAGResponseEvent(
-        content=response.response,
-        strategy="topk"
+        content=combined_content,
+        strategy="topk",
     )
 
 @step(workflow=ResearchWorkflow)
 async def rerank_rag(ctx: Context, ev: RerankRAGEvent) -> RAGResponseEvent:
-    """
-    Rerank RAG: re-ranked retrieval (simulated).
-    """
-    response = await query_engine.aquery(ev.query)
+    """Rerank RAG retrieval."""
+    nodes = await retriever.aretrieve(ev.query)
+    combined_content = "\n\n".join(node.get_content() for node in nodes)
+
     return RAGResponseEvent(
-        content=response.response,
-        strategy="rerank"
+        content=combined_content,
+        strategy="rerank",
     )
