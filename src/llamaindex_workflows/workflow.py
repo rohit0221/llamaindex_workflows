@@ -6,7 +6,7 @@ class ResearchWorkflow(Workflow):
     Autonomous Research Agent Workflow
     """
 
-# --- Import Steps AFTER defining ResearchWorkflow ---
+# --- Now import all steps ---
 from llamaindex_workflows.steps.reflection_steps import (
     kickoff_reflection,
     reflect_query,
@@ -21,18 +21,3 @@ from llamaindex_workflows.steps.retrieval_steps import (
 )
 from llamaindex_workflows.steps.judgment_steps import judge_responses
 from llamaindex_workflows.steps.finish_steps import finalize_answer
-
-# --- Attach Steps ---
-kickoff_reflection.workflow = ResearchWorkflow
-reflect_query.workflow = ResearchWorkflow
-
-send_naive_rag.workflow = ResearchWorkflow
-send_topk_rag.workflow = ResearchWorkflow
-send_rerank_rag.workflow = ResearchWorkflow
-
-naive_rag.workflow = ResearchWorkflow
-topk_rag.workflow = ResearchWorkflow
-rerank_rag.workflow = ResearchWorkflow
-
-judge_responses.workflow = ResearchWorkflow
-finalize_answer.workflow = ResearchWorkflow

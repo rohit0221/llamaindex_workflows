@@ -1,4 +1,4 @@
-from llama_index.core.workflow import Event, StopEvent
+from llama_index.core.workflow import Event, StopEvent, StartEvent
 
 # --- Events for Query Reflection ---
 class ReflectionEvent(Event):
@@ -24,8 +24,8 @@ class RAGResponseEvent(Event):
 
 # --- Event for Judging RAG Outputs ---
 class JudgmentEvent(Event):
-    responses: list
+    responses: list[str]
 
 # --- Final Response Event ---
 class FinalResponseEvent(StopEvent):
-    pass
+    result: str

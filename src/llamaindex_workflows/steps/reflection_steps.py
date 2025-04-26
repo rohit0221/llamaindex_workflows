@@ -1,49 +1,57 @@
 from llamaindex_workflows.workflow import ResearchWorkflow
 from llama_index.core.workflow import step, Context
-from llama_index.llms.openai import OpenAI
-from llama_index.core.workflow import StartEvent  # Import StartEvent
-
+from llamaindex_workflows.events import (
+    StartEvent,
+    ReflectionEvent,
+    RetrievalEvent,
+)
+from llama_index.llms.openai import OpenAI  # or Gemini if you prefer
+import logging
 import os
+import logging
 from dotenv import load_dotenv
+# --- Setup LLM client ---
+llm = OpenAI(model="gpt-4o-mini")  # Or switch to your preferred model
 
-from llamaindex_workflows.events import ReflectionEvent, RetrievalEvent
-
-# Load environment variables
+# --- Kickoff Step (initial start) ---
 load_dotenv()
 
 @step(workflow=ResearchWorkflow)
 async def kickoff_reflection(ctx: Context, ev: StartEvent) -> ReflectionEvent:
     """
-    Kick off the workflow from StartEvent to ReflectionEvent.
+    Kick off by emitting ReflectionEvent directly from StartEvent
     """
+    await ctx.set("user_query", ev.query)  # Store original query in context
+    logging.info(f"[Kickoff] User query: {ev.query}")
+
     return ReflectionEvent(query=ev.query)
 
-# --- Reflection Step ---
+# --- Reflection Step (real LLM call to refine query) ---
+
 @step(workflow=ResearchWorkflow)
-async def reflect_query(ctx: Context, ev: ReflectionEvent) -> ReflectionEvent | RetrievalEvent:
+async def reflect_query(ctx: Context, ev: ReflectionEvent) -> RetrievalEvent:
     """
-    Reflect on the quality of the query.
-    If bad, improve and emit another ReflectionEvent (loop).
-    If good, proceed to RetrievalEvent.
+    Use LLM to improve/refine user query for better retrieval.
     """
-    # Initialize LLM
-    llm = OpenAI(
-        model="gpt-4o-mini",
-        api_key=os.getenv("OPENAI_API_KEY"),
+
+    logging.info(f"[Reflect] Received query to reflect: {ev.query}")
+
+    system_prompt = (
+        "You are a search query expert. Given the user query below, improve it "
+        "to maximize relevance and precision for a financial knowledge base."
     )
 
-    prompt = f"""You are an expert query evaluator.
-Given the following research query, judge if it is well-phrased and specific.
-If it is good, respond with 'GOOD'.
-If it is vague, suggest an improved version.
+    full_prompt = f"{system_prompt}\n\nUser Query: {ev.query}\n\nImproved Query:"
 
-Query: {ev.query}
-"""
-    response = await llm.acomplete(prompt)
-    output = response.text.strip()
+    # --- Call LLM ---
+    response = await llm.acomplete(full_prompt)
 
-    if "GOOD" in output.upper():
-        return RetrievalEvent(query=ev.query)
-    else:
-        improved_query = output
-        return ReflectionEvent(query=improved_query)
+    improved_query = response.text.strip()
+
+    # --- Log improvement ---
+    logging.info(f"[Reflect] Improved query: {improved_query}")
+
+    # Store reflected query
+    await ctx.set("reflected_query", improved_query)
+
+    return RetrievalEvent(query=improved_query)
